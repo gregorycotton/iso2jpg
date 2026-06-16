@@ -1,0 +1,43 @@
+# Rust build output
+/target/
+
+# Local extraction output and generated reports
+/extracted/
+/extract/
+/exports/
+/export/
+/output/
+/out/
+/manifest.json
+/*.manifest.json
+/*.jsonl
+
+# Large local source/media artifacts
+*.iso
+*.ISO
+*.img
+*.IMG
+*.pcd
+*.PCD
+*.jpg
+*.jpeg
+*.JPG
+*.JPEG
+*.png
+*.PNG
+*.tif
+*.tiff
+*.TIF
+*.TIFF
+*.bmp
+*.BMP
+
+# macOS/editor noise
+.DS_Store
+._*
+*.swp
+*.swo
+
+# Local environment files
+.env
+.env.*

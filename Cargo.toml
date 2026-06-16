@@ -1,0 +1,16 @@
+[package]
+name = "iso-extract-jpegs"
+version = "0.1.0"
+edition = "2024"
+description = "Extract JPEG files from ISO 9660 disk images without mounting them."
+license = "MIT"
+
+[lib]
+name = "iso_extract_jpegs"
+path = "src/lib.rs"
+
+[[bin]]
+name = "iso-extract-jpegs"
+path = "src/main.rs"
+
+[dependencies]
