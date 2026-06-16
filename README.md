@@ -1,6 +1,6 @@
 # iso2jpg
 
-Extract image files from ISO 9660 disk images without mounting the ISO.
+Extract PCD image files from ISO 9660 disk images without mounting the ISO.
 
 Rust CLI tool for old photo/image discs and other ISO
 containers. It scans the filesystem inside a `.iso`, finds files with matching
