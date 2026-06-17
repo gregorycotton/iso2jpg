@@ -151,11 +151,11 @@ pub fn usage() -> &'static str {
         "Options:\n",
         "  -o, --out <DIR>          Output directory\n",
         "  -n, --dry-run            Scan only; do not write files\n",
-        "      --validate           Validate JPEG magic bytes before writing\n",
+        "      --validate           Validate JPEG magic bytes for JPEG matches\n",
         "      --overwrite          Replace existing output files\n",
         "      --manifest <PATH>    Write JSON extraction manifest\n",
         "      --extensions <LIST>  Comma-separated extensions; default jpg,jpeg\n",
-        "      --convert-to-jpg     Convert extracted non-JPEG files to .jpg with ImageMagick\n",
+        "      --convert-to-jpg     Convert extracted non-JPEG matches to .jpg with ImageMagick\n",
         "      --verbose            Print per-file details\n",
         "  -h, --help               Print help\n",
         "      --version            Print version\n",
@@ -198,5 +198,87 @@ mod tests {
             CliAction::Run(config) => assert_eq!(config.extensions, vec!["pcd", "bmp"]),
             _ => panic!("expected run action"),
         }
+    }
+
+    #[test]
+    fn parses_all_advertised_run_options() {
+        let action = parse_args(
+            [
+                "a.iso",
+                "b.iso",
+                "-o",
+                "out",
+                "-n",
+                "--validate",
+                "--manifest",
+                "manifest.json",
+                "--extensions",
+                "pcd,bmp",
+                "--convert-to-jpg",
+                "--verbose",
+            ]
+            .map(OsString::from),
+        )
+        .unwrap();
+
+        match action {
+            CliAction::Run(config) => {
+                assert_eq!(
+                    config.inputs,
+                    vec![PathBuf::from("a.iso"), PathBuf::from("b.iso")]
+                );
+                assert_eq!(config.output_dir, PathBuf::from("out"));
+                assert_eq!(config.extensions, vec!["pcd", "bmp"]);
+                assert!(config.dry_run);
+                assert!(config.validate);
+                assert!(config.convert_to_jpg);
+                assert!(config.verbose);
+                assert_eq!(config.manifest_path, Some(PathBuf::from("manifest.json")));
+            }
+            _ => panic!("expected run action"),
+        }
+    }
+
+    #[test]
+    fn parses_equals_forms() {
+        let action = parse_args(
+            [
+                "disc.iso",
+                "--out=out",
+                "--manifest=manifest.json",
+                "--extensions=.pcd,jpg",
+            ]
+            .map(OsString::from),
+        )
+        .unwrap();
+
+        match action {
+            CliAction::Run(config) => {
+                assert_eq!(config.output_dir, PathBuf::from("out"));
+                assert_eq!(config.manifest_path, Some(PathBuf::from("manifest.json")));
+                assert_eq!(config.extensions, vec!["pcd", "jpg"]);
+            }
+            _ => panic!("expected run action"),
+        }
+    }
+
+    #[test]
+    fn parses_help_and_version_without_required_run_options() {
+        assert_eq!(
+            parse_args(["--help"].map(OsString::from)).unwrap(),
+            CliAction::Help
+        );
+        assert_eq!(
+            parse_args(["--version"].map(OsString::from)).unwrap(),
+            CliAction::Version
+        );
+    }
+
+    #[test]
+    fn rejects_invalid_extensions() {
+        let err =
+            parse_args(["disc.iso", "--out", "out", "--extensions", "jp*g"].map(OsString::from))
+                .unwrap_err();
+        assert_eq!(err.exit_code(), 2);
     }
 }
